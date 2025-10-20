@@ -76,6 +76,6 @@ public final class CombinedBridgeColourCommand {
         saveConfigValue("cbridge_colour2", cbridgeC2);
         saveConfigValue("cbridge_colour3", cbridgeC3);
 
-        printToChat("§cYou have set the cbridge colour format to: \n" + cbridgeC1 + "CBridge > " + cbridgeC2 + "Username: " + cbridgeC3 + "Message");
+        printToChat("§cYou have set the cbridge colour format to: \n" + cbridgeC1 + "CB > " + cbridgeC2 + "Username: " + cbridgeC3 + "Message");
     }
 }

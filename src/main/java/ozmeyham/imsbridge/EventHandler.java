@@ -9,10 +9,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 
 import static ozmeyham.imsbridge.IMSBridge.*;
-import static ozmeyham.imsbridge.ImsWebSocketClient.wsClient;
+import static ozmeyham.imsbridge.ImsWebSocketClient.*;
 import static ozmeyham.imsbridge.commands.CommandHandler.registerCommands;
-import static ozmeyham.imsbridge.utils.BridgeKeyUtils.bridgeKey;
-import static ozmeyham.imsbridge.utils.BridgeKeyUtils.checkBridgeKey;
+import static ozmeyham.imsbridge.utils.BridgeKeyUtils.*;
 import static ozmeyham.imsbridge.utils.ConfigUtils.saveConfigValue;
 import static ozmeyham.imsbridge.utils.TextUtils.*;
 import static ozmeyham.imsbridge.utils.TextUtils.isSkyblockChannelChange;
@@ -25,6 +24,7 @@ public class EventHandler {
         ClientSendMessageEvents.ALLOW_CHAT.register(EventHandler::allowCBridgeMsg);
         ClientReceiveMessageEvents.GAME.register(EventHandler::handleClientMessages);
         ClientPlayConnectionEvents.JOIN.register(EventHandler::onWorldJoin);
+        ClientPlayConnectionEvents.DISCONNECT.register(EventHandler::onWorldLeave); //wip for disconnecting players when they leave a server/world
     }
 
     // Checks stuff when you join a world
@@ -32,21 +32,36 @@ public class EventHandler {
         // ClientConnection connection = handler.getConnection();
         // String address = connection.getAddress().toString().toLowerCase();
         // onHypixel = address.contains("hypixel.net");
-
-        checkBridgeKey(); // Attempts to connect to websocket if a valid bridge key exists
-        if (!guide) {
-            guide = true;
-            saveConfigValue("guide", "true");
+        clientOnline = true;
+        if (isValidBridgeKey()) {
+            connectWebSocket();
+        }
+        new Thread(() -> {
             try {
                 Thread.sleep(3000);
-                if (!checkedForUpdate) {checkForUpdates();
+                if (firstLogin) {
+                    firstLogin = false;
+                    saveConfigValue("firstLogin", "false");
+                    printToChat("§bThanks for installing IMS Bridge Mod.\n§7Use §6/bridge help §7and §6/cbridge help §7to get a list of all commands.");
+                }
+                Thread.sleep(2000);
+                if (!checkedForUpdate) {
+                    checkForUpdates();
                     checkedForUpdate =true;}
-                printToChat("§bThanks for installing IMS Bridge Mod.\n§7Use §6/bridge help §7and §6/cbridge help §7to get a list of all commands.");
+                if (!isValidBridgeKey()) {
+                    printToChat("§cBridge key not set. §7Use §6/key §7on discord to obtain a key, then run §6/bridge key §7in-game and paste your key.");
+                }
+
             } catch (InterruptedException e) {
-                printToChat("§cAn error occured. Please send the following error to #bug-report "+e);
+                printToChat("§cAn error occured: "+e);
                 throw new RuntimeException(e);
             }
-        }
+        }).start();
+    }
+
+    private static void onWorldLeave(ClientPlayNetworkHandler handler, MinecraftClient client) {
+        clientOnline = false;
+        disconnectWebSocket();
     }
 
     // Redirects chat messages to cbridge when required
@@ -72,7 +87,7 @@ public class EventHandler {
             if (wsClient != null && wsClient.isOpen() && bridgeKey != null) {
                 wsClient.send("{\"from\":\"mc\",\"msg\":" + quote(sanitizeMessage(content)) + "}");
             }
-        } else if (isSkyblockChannelChange(content) && combinedBridgeChatEnabled == true) {
+        } else if (isSkyblockChannelChange(content) && combinedBridgeChatEnabled) {
             combinedBridgeChatEnabled = false;
             saveConfigValue("combinedBridgeChatEnabled", "false");
             printToChat("§cExited cbridge chat!");

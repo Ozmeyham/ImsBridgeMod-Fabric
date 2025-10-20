@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "ims-bridge",
+	"id": "ims-bridge-fabric",
 	"version": "${version}",
 	"name": "IMS Bridge",
 	"description": "This is an example description! Tell everyone what your mod is about!",

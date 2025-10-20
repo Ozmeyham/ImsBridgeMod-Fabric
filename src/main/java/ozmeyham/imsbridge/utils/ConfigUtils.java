@@ -31,7 +31,7 @@ public class ConfigUtils {
         cbridgeC2 = loadConfigValue("cbridge_colour2","§6");
         cbridgeC3 = loadConfigValue("cbridge_colour3","§f");
 
-        guide = Boolean.valueOf(loadConfigValue("guide","false"));
+        firstLogin = Boolean.valueOf(loadConfigValue("guide","false"));
         combinedBridgeEnabled = Boolean.valueOf(loadConfigValue("combinedBridgeEnabled","true"));
         bridgeEnabled = Boolean.valueOf(loadConfigValue("bridgeEnabled","true"));
         combinedBridgeChatEnabled = Boolean.valueOf(loadConfigValue("combinedBridgeChatEnabled","false"));

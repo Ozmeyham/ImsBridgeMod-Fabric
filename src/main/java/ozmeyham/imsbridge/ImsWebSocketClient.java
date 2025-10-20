@@ -19,12 +19,14 @@ import static ozmeyham.imsbridge.IMSBridge.*;
 import static ozmeyham.imsbridge.commands.BridgeColourCommand.*;
 import static ozmeyham.imsbridge.commands.CombinedBridgeColourCommand.*;
 import static ozmeyham.imsbridge.utils.BridgeKeyUtils.bridgeKey;
+import static ozmeyham.imsbridge.utils.BridgeKeyUtils.isValidBridgeKey;
 import static ozmeyham.imsbridge.utils.TextUtils.printToChat;
 import static ozmeyham.imsbridge.utils.TextUtils.quote;
 
 public class ImsWebSocketClient extends WebSocketClient {
 
     public static ImsWebSocketClient wsClient;
+    public static Boolean clientOnline = false; //boolean to track whether player is actually in a world/server
 
     public ImsWebSocketClient(URI serverUri) {
         super(serverUri);
@@ -42,6 +44,16 @@ public class ImsWebSocketClient extends WebSocketClient {
         }
     }
 
+    public static void disconnectWebSocket() {
+        if (wsClient != null && wsClient.isOpen()) {
+            try {
+                wsClient.close();
+            } catch (Exception e) {
+                LOGGER.error("Failed to close WebSocket", e);
+            }
+        }
+    }
+
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         LOGGER.info("WebSocket Connected");
@@ -49,25 +61,6 @@ public class ImsWebSocketClient extends WebSocketClient {
         // Send bridgeKey immediately after connecting
         if (bridgeKey != null) {
             wsClient.send("{\"from\":\"mc\",\"key\":" + quote(bridgeKey) + "}");
-        }
-    }
-    private void bridgeMessage(String chatMsg, String username, String guild) {
-        String colouredMsg = bridgeC1 + (guild == null ? "Bridge" : guild) + " > " + bridgeC2 + username + ": " + bridgeC3 + chatMsg;
-        // Send formatted message in client chat
-        if (bridgeEnabled == true) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(colouredMsg))
-            );
-        }
-    }
-
-    private void cbridgeMessage(String chatMsg, String username, String guild, String guildColour) {
-        String colouredMsg = cbridgeC1 + "CBridge > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
-        // Send formatted message in client chat
-        if (combinedBridgeEnabled == true) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(colouredMsg))
-            );
         }
     }
 
@@ -127,6 +120,26 @@ public class ImsWebSocketClient extends WebSocketClient {
         }
     }
 
+    private void bridgeMessage(String chatMsg, String username, String guild) {
+        String formattedMsg = bridgeC1 + "Guild > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
+        // Send formatted message in client chat
+        if (bridgeEnabled) {
+            MinecraftClient.getInstance().execute(() ->
+                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(formattedMsg))
+            );
+        }
+    }
+
+    private void cbridgeMessage(String chatMsg, String username, String guild, String guildColour) {
+        String formattedMsg = cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
+        // Send formatted message in client chat
+        if (combinedBridgeEnabled == true) {
+            MinecraftClient.getInstance().execute(() ->
+                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(formattedMsg))
+            );
+        }
+    }
+
     public static String getJsonValue(String jsonString, String key) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -160,7 +173,7 @@ public class ImsWebSocketClient extends WebSocketClient {
             LOGGER.warn("Not reconnecting due to invalid key.");
             return; // Don't attempt to reconnect
         }
-        if (bridgeKey != null) {
+        if (isValidBridgeKey() && clientOnline) {
             tryReconnecting();
         }
     }

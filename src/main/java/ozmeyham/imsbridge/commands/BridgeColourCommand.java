@@ -74,8 +74,7 @@ public final class BridgeColourCommand {
         saveConfigValue("bridge_colour1", bridgeC1);
         saveConfigValue("bridge_colour2", bridgeC2);
         saveConfigValue("bridge_colour3", bridgeC3);
-
-        printToChat("§cYou have set the bridge colour format to: \n" + bridgeC1 + "Bridge > " + bridgeC2 + "Username: " + bridgeC3 + "Message");
+        printToChat("§cYou have set the bridge colour format to: \n" + bridgeC1 + "Guild > " + bridgeC2 + "Username" + " §9[DISC]§f: " + bridgeC3 + "Message");
     }
 
 
