@@ -43,7 +43,7 @@ public final class BridgeCommands {
                                 .executes(ctx -> {
                                     String key = StringArgumentType.getString(ctx, "key");
                                     bridgeKey = key;
-                                    if (isValidBridgeKey()) {
+                                    if (isValidBridgeKey() && (wsClient == null || !wsClient.isOpen())) {
                                         saveConfigValue("bridgeKey", bridgeKey);
                                         loadConfig();
                                         LOGGER.info("Bridge key set to " + key);

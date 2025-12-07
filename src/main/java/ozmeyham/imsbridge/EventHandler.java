@@ -33,7 +33,7 @@ public class EventHandler {
         // String address = connection.getAddress().toString().toLowerCase();
         // onHypixel = address.contains("hypixel.net");
         clientOnline = true;
-        if (isValidBridgeKey()) {
+        if (isValidBridgeKey() && (wsClient == null || !wsClient.isOpen())) {
             connectWebSocket();
         }
         new Thread(() -> {

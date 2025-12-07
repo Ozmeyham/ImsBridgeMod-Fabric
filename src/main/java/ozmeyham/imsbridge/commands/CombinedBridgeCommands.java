@@ -24,8 +24,8 @@ public class CombinedBridgeCommands {
                                     §b/cbridge toggle: §7Enables/disables cbridge message rendering.
                                     §b/cbridge colour <colour1> <colour2> <colour3>: §7Sets the colour formatting of rendered cbridge messages.
                                     §b/cbridge colour: §7Sets the colour formatting back to default.
-                                    §b/cbridge chat: §6(alias /cbc) §7Enter/exit cbridge chat (like how \"/chat guild\" works). 
-                                    §b/cbc <msg>: §7Sends msg to cbridge.
+                                    §b/cbridge chat: §6(alias /cbc or /bc) §7Enter/exit cbridge chat (like how \"/chat guild\" works). 
+                                    §b/cbc <msg>: §6(or /bc <msg>) §7Sends msg to cbridge.
                                     """
                             );
                             return Command.SINGLE_SUCCESS;
@@ -89,6 +89,41 @@ public class CombinedBridgeCommands {
     }
     public static void combinedBridgeChatCommandShort(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("cbc")
+                .executes(ctx -> {
+                    if (combinedBridgeChatEnabled == false) {
+                        combinedBridgeChatEnabled = true;
+                        saveConfigValue("combinedBridgeChatEnabled", "true");
+                        printToChat("§aEntered cbridge chat!");
+                    } else {
+                        combinedBridgeChatEnabled = false;
+                        saveConfigValue("combinedBridgeChatEnabled", "false");
+                        printToChat("§cExited cbridge chat!");
+                    }
+                    return Command.SINGLE_SUCCESS;
+                })
+        );
+    }
+
+    public static void combinedBridgeMsgCommand2(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("bc")
+                .then(argument("message", StringArgumentType.greedyString())
+                        .executes(ctx -> {
+                            String message = StringArgumentType.getString(ctx, "message");
+                            if (combinedBridgeEnabled && wsClient.isOpen() && wsClient != null) {
+                                wsClient.send("{\"from\":\"mc\",\"msg\":\"" + sanitizeMessage(message) + "\",\"combinedbridge\":true}");
+                            }
+                            else if (wsClient == null || wsClient.isClosed()){
+                                printToChat("§cYou are not connected to the bridge websocket server!");
+                            } else {
+                                printToChat("§cYou need to enable combined bridge messages to use this command! §6§o/cbridge toggle");
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
+                ));
+    }
+
+    public static void combinedBridgeChatCommandShort2(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("bc")
                 .executes(ctx -> {
                     if (combinedBridgeChatEnabled == false) {
                         combinedBridgeChatEnabled = true;

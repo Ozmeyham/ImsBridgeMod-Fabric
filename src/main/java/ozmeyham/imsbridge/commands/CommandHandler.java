@@ -21,7 +21,9 @@ public class CommandHandler {
         combinedBridgeToggleCommand(dispatcher);
         combinedBridgeChatCommand(dispatcher);
         combinedBridgeChatCommandShort(dispatcher);
+        combinedBridgeChatCommandShort2(dispatcher);
         combinedBridgeMsgCommand(dispatcher);
+        combinedBridgeMsgCommand2(dispatcher);
         combinedBridgeColourCommand(dispatcher);
         combinedBridgeHelpCommand(dispatcher);
     }
