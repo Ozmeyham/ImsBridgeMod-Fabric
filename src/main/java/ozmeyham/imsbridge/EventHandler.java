@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.text.*;
+import ozmeyham.imsbridge.commands.CombinedBridgeColourCommand;
 
 import static ozmeyham.imsbridge.IMSBridge.*;
 import static ozmeyham.imsbridge.ImsWebSocketClient.*;
@@ -23,6 +25,7 @@ public class EventHandler {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> registerCommands(dispatcher));
         ClientSendMessageEvents.ALLOW_CHAT.register(EventHandler::allowCBridgeMsg);
         ClientReceiveMessageEvents.GAME.register(EventHandler::handleClientMessages);
+        ClientReceiveMessageEvents.MODIFY_GAME.register(EventHandler::clickableJoinCommand);
         ClientPlayConnectionEvents.JOIN.register(EventHandler::onWorldJoin);
         ClientPlayConnectionEvents.DISCONNECT.register(EventHandler::onWorldLeave); //wip for disconnecting players when they leave a server/world
     }
@@ -80,7 +83,7 @@ public class EventHandler {
     }
 
     // Listen for outgoing guild messages and channel changes
-    private static void handleClientMessages(net.minecraft.text.Text message, boolean overlay) {
+    private static void handleClientMessages(Text message, boolean overlay) {
         String content = message.getString();
         if (content.contains("§2Guild >")) {
             // Send to websocket
@@ -92,5 +95,23 @@ public class EventHandler {
             saveConfigValue("combinedBridgeChatEnabled", "false");
             printToChat("§cExited cbridge chat!");
         }
+    }
+
+    private static Text clickableJoinCommand(Text message, boolean overlay) {
+        if (overlay) return message;
+        String string = message.getString();
+        if (!string.startsWith(CombinedBridgeColourCommand.cbridgeC1 + "CB > ")) return message;
+        if (!string.contains("Do !join ") || !string.contains(" to join!")) return message;
+        MutableText newMessage = (MutableText) message;
+        String ignToJoin;
+        try {
+            ignToJoin = string.split("!join ")[1].split(" ")[0];
+        } catch (Exception e) {
+            return message;
+        }
+        newMessage = newMessage.setStyle(newMessage.getStyle().withClickEvent(new ClickEvent.RunCommand("/cbc !join " + ignToJoin)));
+        newMessage = newMessage.setStyle(newMessage.getStyle().withHoverEvent(new HoverEvent.ShowText(Text.of("§eRuns /cbc !join " + ignToJoin))));
+        newMessage = newMessage.append(" §eClick here to join the party");
+        return newMessage;
     }
 }
