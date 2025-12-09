@@ -7,10 +7,17 @@ import java.util.Set;
 
 public class TextUtils {
     // Simple in-game chat print because the command is so long for some reason
-    public static void printToChat(String msg) {
+    public static void printToChat(String msg, boolean prefix) {
+        Text message;
+        if (prefix) message = Text.literal("§6IMS-Bridge Mod > §r" + msg);
+        else message = Text.literal(msg);
         MinecraftClient.getInstance().execute(() ->
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("§6IMS-Bridge Mod > §r" + msg), false)
+                MinecraftClient.getInstance().player.sendMessage(message, false)
         );
+    }
+
+    public static void printToChat(String msg) {
+        printToChat(msg, true);
     }
 
     public static String sanitizeMessage (String msg) {

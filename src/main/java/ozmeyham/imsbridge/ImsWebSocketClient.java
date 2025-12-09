@@ -127,7 +127,7 @@ public class ImsWebSocketClient extends WebSocketClient {
         String formattedMsg = bridgeC1 + "Guild > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
         // Send formatted message in client chat
         if (bridgeEnabled) {
-            TextUtils.printToChat(formattedMsg);
+            TextUtils.printToChat(formattedMsg, false);
         }
     }
 
@@ -135,7 +135,7 @@ public class ImsWebSocketClient extends WebSocketClient {
         if (!combinedBridgeEnabled) return;
         String formattedMsg = cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
         // Send formatted message in client chat
-        TextUtils.printToChat(formattedMsg);
+        TextUtils.printToChat(formattedMsg, false);
         String joinCommand = "!join " + MinecraftClient.getInstance().player.getName().getString();
         if (chatMsg.equalsIgnoreCase(joinCommand) && System.currentTimeMillis() < CombinedBridgePartyCommand.lastParty + 300000) {
             MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("/p " + username);
