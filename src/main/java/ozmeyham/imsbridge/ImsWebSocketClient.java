@@ -124,11 +124,13 @@ public class ImsWebSocketClient extends WebSocketClient {
     }
 
     private void bridgeMessage(String chatMsg, String username, String guild) {
-        String formattedMsg = bridgeC1 + "Guild > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
+        if (!bridgeEnabled) return;
+
+        // really dumb fix but the mod was picking up its own messages
+        String formattedMsg = bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
+
         // Send formatted message in client chat
-        if (bridgeEnabled) {
-            TextUtils.printToChat(formattedMsg, false);
-        }
+        TextUtils.printToChat(formattedMsg, false);
     }
 
     private void cbridgeMessage(String chatMsg, String username, String guild, String guildColour) {
