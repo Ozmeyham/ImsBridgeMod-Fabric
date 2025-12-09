@@ -9,7 +9,7 @@ public class TextUtils {
     // Simple in-game chat print because the command is so long for some reason
     public static void printToChat(String msg) {
         MinecraftClient.getInstance().execute(() ->
-                MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal("§6IMS-Bridge Mod > §r" + msg))
+                MinecraftClient.getInstance().player.sendMessage(Text.literal("§6IMS-Bridge Mod > §r" + msg), false)
         );
     }
 

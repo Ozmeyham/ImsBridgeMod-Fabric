@@ -13,6 +13,8 @@ import com.google.gson.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ozmeyham.imsbridge.commands.CombinedBridgePartyCommand;
+import ozmeyham.imsbridge.utils.TextUtils;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
 import static ozmeyham.imsbridge.IMSBridge.*;
@@ -71,6 +73,7 @@ public class ImsWebSocketClient extends WebSocketClient {
             handleResponse(message);
         } else if (getJsonValue(message, "from") != null) {
             String msg = getJsonValue(message, "msg");
+            if (msg == null) return;
 
             String[] split = msg.split(": ", 2);
             String username = split.length > 0 ? split[0] : "";
@@ -124,19 +127,18 @@ public class ImsWebSocketClient extends WebSocketClient {
         String formattedMsg = bridgeC1 + "Guild > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
         // Send formatted message in client chat
         if (bridgeEnabled) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(formattedMsg))
-            );
+            TextUtils.printToChat(formattedMsg);
         }
     }
 
     private void cbridgeMessage(String chatMsg, String username, String guild, String guildColour) {
+        if (!combinedBridgeEnabled) return;
         String formattedMsg = cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
         // Send formatted message in client chat
-        if (combinedBridgeEnabled == true) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(formattedMsg))
-            );
+        TextUtils.printToChat(formattedMsg);
+        String joinCommand = "!join " + MinecraftClient.getInstance().player.getName().getString();
+        if (chatMsg.equalsIgnoreCase(joinCommand) && System.currentTimeMillis() < CombinedBridgePartyCommand.lastParty + 300000) {
+            MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("/p " + username);
         }
     }
 
