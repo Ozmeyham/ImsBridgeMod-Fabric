@@ -136,8 +136,10 @@ public class ImsWebSocketClient extends WebSocketClient {
         String formattedMsg = cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
         // Send formatted message in client chat
         TextUtils.printToChat(formattedMsg, false);
+        if (CombinedBridgePartyCommand.partySpotsLeft <= 0 || System.currentTimeMillis() > CombinedBridgePartyCommand.lastParty + 300000) return;
         String joinCommand = "!join " + MinecraftClient.getInstance().player.getName().getString();
-        if (chatMsg.equalsIgnoreCase(joinCommand) && System.currentTimeMillis() < CombinedBridgePartyCommand.lastParty + 300000) {
+        if (chatMsg.equalsIgnoreCase(joinCommand)) {
+            CombinedBridgePartyCommand.partySpotsLeft -= 1;
             MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("/p " + username);
         }
     }
