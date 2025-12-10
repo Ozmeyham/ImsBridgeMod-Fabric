@@ -142,7 +142,7 @@ public class ImsWebSocketClient extends WebSocketClient {
         String joinCommand = "!join " + MinecraftClient.getInstance().player.getName().getString();
         if (chatMsg.equalsIgnoreCase(joinCommand)) {
             CombinedBridgePartyCommand.partySpotsLeft -= 1;
-            MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("/p " + username);
+            MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("party invite " + username);
         }
     }
 
