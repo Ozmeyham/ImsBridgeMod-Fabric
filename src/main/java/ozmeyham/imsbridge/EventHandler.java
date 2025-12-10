@@ -91,6 +91,28 @@ public class EventHandler {
             combinedBridgeChatEnabled = false;
             saveConfigValue("combinedBridgeChatEnabled", "false");
             printToChat("§cExited cbridge chat!");
+        } else if (content.contains("Disabled guild chat!")) {
+            if (combinedBridgeEnabled) {
+                combinedBridgeEnabled = false;
+                saveConfigValue("combinedBridgeEnabled", "false");
+                printToChat("§cDisabled combined bridge messages!");
+            }
+            if (bridgeEnabled) {
+                bridgeEnabled = false;
+                saveConfigValue("bridgeEnabled", "false");
+                printToChat("§cDisabled bridge messages!");
+            }
+        } else if (content.contains("Enabled guild chat!")) {
+            if (!combinedBridgeEnabled) {
+                combinedBridgeEnabled = true;
+                saveConfigValue("combinedBridgeEnabled", "true");
+                printToChat("§aEnabled combined bridge messages!");
+            }
+            if (!bridgeEnabled) {
+                bridgeEnabled = true;
+                saveConfigValue("bridgeEnabled", "true");
+                printToChat("§aEnabled bridge messages!");
+            }
         }
     }
 }
