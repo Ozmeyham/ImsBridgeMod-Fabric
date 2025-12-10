@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import static ozmeyham.imsbridge.commands.BridgeCommands.*;
 import static ozmeyham.imsbridge.commands.BridgeColourCommand.bridgeColourCommand;
+import static ozmeyham.imsbridge.commands.CombinedBridgePartyCommand.bridgePartyCommand;
 import static ozmeyham.imsbridge.commands.CombinedBridgeCommands.*;
 import static ozmeyham.imsbridge.commands.CombinedBridgeColourCommand.combinedBridgeColourCommand;
 
@@ -26,5 +27,6 @@ public class CommandHandler {
         combinedBridgeMsgCommand2(dispatcher);
         combinedBridgeColourCommand(dispatcher);
         combinedBridgeHelpCommand(dispatcher);
+        bridgePartyCommand(dispatcher);
     }
 }

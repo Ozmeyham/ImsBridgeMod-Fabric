@@ -18,6 +18,8 @@ public class UpdateChecker {
         return container.map(mod -> mod.getMetadata().getVersion().getFriendlyString()).orElse("unknown");
     }
     public static void checkForUpdates() {
+        String currentVersion = getModVersion();
+        if (currentVersion.equals("unknown")) return;
         new Thread(() -> {
             try {
                 HttpURLConnection connection = (HttpURLConnection) new URL("https://raw.githubusercontent.com/Ozmeyham/ImsBridgeMod-1.21.5/main/gradle.properties").openConnection();
@@ -41,8 +43,6 @@ public class UpdateChecker {
                     IMSBridge.LOGGER.warn("mod_version not found in gradle.properties");
                     return;
                 }
-
-                String currentVersion = getModVersion();
 
                 if (!latestVersion.equalsIgnoreCase(currentVersion)) {
                     printToChat("§bUpdate available! §7Latest version: §b" + latestVersion +

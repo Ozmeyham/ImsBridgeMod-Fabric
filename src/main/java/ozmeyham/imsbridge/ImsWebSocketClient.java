@@ -13,6 +13,8 @@ import com.google.gson.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ozmeyham.imsbridge.commands.CombinedBridgePartyCommand;
+import ozmeyham.imsbridge.utils.TextUtils;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
 import static ozmeyham.imsbridge.IMSBridge.*;
@@ -71,6 +73,7 @@ public class ImsWebSocketClient extends WebSocketClient {
             handleResponse(message);
         } else if (getJsonValue(message, "from") != null) {
             String msg = getJsonValue(message, "msg");
+            if (msg == null) return;
 
             String[] split = msg.split(": ", 2);
             String username = split.length > 0 ? split[0] : "";
@@ -121,22 +124,25 @@ public class ImsWebSocketClient extends WebSocketClient {
     }
 
     private void bridgeMessage(String chatMsg, String username, String guild) {
-        String formattedMsg = bridgeC1 + "Guild > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
+        if (!bridgeEnabled) return;
+
+        // really dumb fix but the mod was picking up its own messages
+        String formattedMsg = bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
+
         // Send formatted message in client chat
-        if (bridgeEnabled) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(formattedMsg))
-            );
-        }
+        TextUtils.printToChat(formattedMsg, false);
     }
 
     private void cbridgeMessage(String chatMsg, String username, String guild, String guildColour) {
+        if (!combinedBridgeEnabled) return;
         String formattedMsg = cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
         // Send formatted message in client chat
-        if (combinedBridgeEnabled == true) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(formattedMsg))
-            );
+        TextUtils.printToChat(formattedMsg, false);
+        if (CombinedBridgePartyCommand.partySpotsLeft <= 0 || System.currentTimeMillis() > CombinedBridgePartyCommand.lastParty + 300000) return;
+        String joinCommand = "!join " + MinecraftClient.getInstance().player.getName().getString();
+        if (chatMsg.equalsIgnoreCase(joinCommand)) {
+            CombinedBridgePartyCommand.partySpotsLeft -= 1;
+            MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("/p " + username);
         }
     }
 
