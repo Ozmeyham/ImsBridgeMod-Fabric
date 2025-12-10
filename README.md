@@ -36,9 +36,11 @@ If you very recently joined an IMS guild and receive an error when attempting to
 
 ```/cbridge colour``` and ```/bridge colour``` - Resets the colour formatting back to default.
 
+```/cbridge party <playerCap> <reason>``` - Sends a message in cbridge to say you have an open party, and lets other people join by typing ```!join <yourIGN>```
+
 ```/bridge key <key>``` - Allows the user to input their UUID bridge key for authentication to use bridge.
 
-```/bridge online``` or ```/bl``` - Lists all online guild members using the mod. Useful for using cbridge.
+```/bridge online``` or ```/bl``` - Lists all online guild members using the mod. Useful for using cbridge to talk to specific people in other guilds.
 
 ```/cbridge help``` and ```/bridge help``` - Displays a help message for the above commands.
 
