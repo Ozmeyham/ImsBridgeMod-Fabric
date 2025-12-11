@@ -18,6 +18,7 @@ configurations {
 repositories {
 	mavenCentral()
 	maven { url "https://maven.fabricmc.net/" }
+	maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 }
 
 dependencies {
@@ -26,6 +27,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	shade 'org.java-websocket:Java-WebSocket:1.5.4'
+	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 }
 
 tasks.withType(JavaCompile).configureEach {

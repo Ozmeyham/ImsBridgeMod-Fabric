@@ -13,18 +13,22 @@ import com.google.gson.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ozmeyham.imsbridge.commands.CombinedBridgePartyCommand;
+import ozmeyham.imsbridge.utils.TextUtils;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
 import static ozmeyham.imsbridge.IMSBridge.*;
 import static ozmeyham.imsbridge.commands.BridgeColourCommand.*;
 import static ozmeyham.imsbridge.commands.CombinedBridgeColourCommand.*;
 import static ozmeyham.imsbridge.utils.BridgeKeyUtils.bridgeKey;
+import static ozmeyham.imsbridge.utils.BridgeKeyUtils.isValidBridgeKey;
 import static ozmeyham.imsbridge.utils.TextUtils.printToChat;
 import static ozmeyham.imsbridge.utils.TextUtils.quote;
 
 public class ImsWebSocketClient extends WebSocketClient {
 
     public static ImsWebSocketClient wsClient;
+    public static Boolean clientOnline = false; //boolean to track whether player is actually in a world/server
 
     public ImsWebSocketClient(URI serverUri) {
         super(serverUri);
@@ -42,6 +46,16 @@ public class ImsWebSocketClient extends WebSocketClient {
         }
     }
 
+    public static void disconnectWebSocket() {
+        if (wsClient != null && wsClient.isOpen()) {
+            try {
+                wsClient.close();
+            } catch (Exception e) {
+                LOGGER.error("Failed to close WebSocket", e);
+            }
+        }
+    }
+
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         LOGGER.info("WebSocket Connected");
@@ -49,25 +63,6 @@ public class ImsWebSocketClient extends WebSocketClient {
         // Send bridgeKey immediately after connecting
         if (bridgeKey != null) {
             wsClient.send("{\"from\":\"mc\",\"key\":" + quote(bridgeKey) + "}");
-        }
-    }
-    private void bridgeMessage(String chatMsg, String username, String guild) {
-        String colouredMsg = bridgeC1 + (guild == null ? "Bridge" : guild) + " > " + bridgeC2 + username + ": " + bridgeC3 + chatMsg;
-        // Send formatted message in client chat
-        if (bridgeEnabled == true) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(colouredMsg))
-            );
-        }
-    }
-
-    private void cbridgeMessage(String chatMsg, String username, String guild, String guildColour) {
-        String colouredMsg = cbridgeC1 + "CBridge > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
-        // Send formatted message in client chat
-        if (combinedBridgeEnabled == true) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(colouredMsg))
-            );
         }
     }
 
@@ -78,6 +73,7 @@ public class ImsWebSocketClient extends WebSocketClient {
             handleResponse(message);
         } else if (getJsonValue(message, "from") != null) {
             String msg = getJsonValue(message, "msg");
+            if (msg == null) return;
 
             String[] split = msg.split(": ", 2);
             String username = split.length > 0 ? split[0] : "";
@@ -127,6 +123,29 @@ public class ImsWebSocketClient extends WebSocketClient {
         }
     }
 
+    private void bridgeMessage(String chatMsg, String username, String guild) {
+        if (!bridgeEnabled) return;
+
+        // really dumb fix but the mod was picking up its own messages
+        String formattedMsg = bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg;
+
+        // Send formatted message in client chat
+        TextUtils.printToChat(formattedMsg, false);
+    }
+
+    private void cbridgeMessage(String chatMsg, String username, String guild, String guildColour) {
+        if (!combinedBridgeEnabled) return;
+        String formattedMsg = cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg;
+        // Send formatted message in client chat
+        TextUtils.printToChat(formattedMsg, false);
+        if (CombinedBridgePartyCommand.partySpotsLeft <= 0 || System.currentTimeMillis() > CombinedBridgePartyCommand.lastParty + 300000) return;
+        String joinCommand = "!join " + MinecraftClient.getInstance().player.getName().getString();
+        if (chatMsg.equalsIgnoreCase(joinCommand)) {
+            CombinedBridgePartyCommand.partySpotsLeft -= 1;
+            MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("party invite " + username);
+        }
+    }
+
     public static String getJsonValue(String jsonString, String key) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -160,7 +179,7 @@ public class ImsWebSocketClient extends WebSocketClient {
             LOGGER.warn("Not reconnecting due to invalid key.");
             return; // Don't attempt to reconnect
         }
-        if (bridgeKey != null) {
+        if (isValidBridgeKey() && clientOnline) {
             tryReconnecting();
         }
     }
