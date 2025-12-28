@@ -1,5 +1,6 @@
 package ozmeyham.imsbridge;
 
+import com.google.gson.*;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
@@ -71,7 +72,11 @@ public class EventHandler {
     private static boolean allowCBridgeMsg(String message) {
         if (combinedBridgeEnabled && combinedBridgeChatEnabled && wsClient != null && wsClient.isOpen() && bridgeKey != null) {
             if (!message.startsWith("/")) {
-                wsClient.send("{\"from\":\"mc\",\"msg\":\"" + sanitizeMessage(message) + "\",\"combinedbridge\":true}");
+                JsonObject payload = new JsonObject();
+                payload.addProperty("from", "mc");
+                payload.addProperty("msg", message);
+                payload.addProperty("combinedbridge","true");
+                ImsWebSocketClient.wsClient.send(payload.toString());
                 return false;
             }
         }
@@ -88,13 +93,24 @@ public class EventHandler {
         if (content.contains("§2Guild >")) {
             // Send to websocket
             if (wsClient != null && wsClient.isOpen() && bridgeKey != null) {
-                wsClient.send("{\"from\":\"mc\",\"msg\":" + quote(sanitizeMessage(content)) + "}");
+                JsonObject payload = new JsonObject();
+                payload.addProperty("from","mc");
+                payload.addProperty("msg",content);
+                wsClient.send(payload.toString());
+            }
+        } else if (content.endsWith(" joined the guild!") || content.endsWith(" left the guild!")) {
+            if (wsClient != null && wsClient.isOpen() && bridgeKey != null) {
+                JsonObject payload = new JsonObject();
+                payload.addProperty("from","mc");
+                payload.addProperty("msg", content);
+                payload.addProperty("guildMemberChange", "true");
+                wsClient.send(payload.toString());
             }
         } else if (isSkyblockChannelChange(content) && combinedBridgeChatEnabled) {
             combinedBridgeChatEnabled = false;
             saveConfigValue("combinedBridgeChatEnabled", "false");
             printToChat("§cExited cbridge chat!");
-        } else if (content.contains("Disabled guild chat!")) {
+        } else if (content.startsWith("Disabled guild chat!")) {
             if (combinedBridgeEnabled) {
                 combinedBridgeEnabled = false;
                 saveConfigValue("combinedBridgeEnabled", "false");
@@ -105,7 +121,7 @@ public class EventHandler {
                 saveConfigValue("bridgeEnabled", "false");
                 printToChat("§cDisabled bridge messages!");
             }
-        } else if (content.contains("Enabled guild chat!")) {
+        } else if (content.startsWith("Enabled guild chat!")) {
             if (!combinedBridgeEnabled) {
                 combinedBridgeEnabled = true;
                 saveConfigValue("combinedBridgeEnabled", "true");
