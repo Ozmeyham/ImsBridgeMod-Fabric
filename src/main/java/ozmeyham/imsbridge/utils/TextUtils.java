@@ -20,15 +20,6 @@ public class TextUtils {
         printToChat(msg, true);
     }
 
-    public static String sanitizeMessage (String msg) {
-        return msg.replace("\"","''").replace("\\","\\\\");
-    }
-
-    // Lightweight JSON string escaper
-    public static String quote(String s) {
-        return "\"" + sanitizeMessage(s) + "\"";
-    }
-
     public static Boolean isSkyblockChannelChange(String content) {
         Set<String> validMessages = Set.of(
                 "You're already in this channel!",

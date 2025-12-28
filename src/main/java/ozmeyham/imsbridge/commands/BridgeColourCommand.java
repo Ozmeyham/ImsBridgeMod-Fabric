@@ -23,7 +23,7 @@ public final class BridgeColourCommand {
             "yellow", "white"
     );
     // Default bridge colour formatting
-    public static String bridgeC1 = "§9";
+    public static String bridgeC1 = "§2";
     public static String bridgeC2 = "§6";
     public static String bridgeC3 = "§f";
 
@@ -32,14 +32,14 @@ public final class BridgeColourCommand {
         dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("bridge")
                 .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("colour")
                         .executes(context -> {
-                            bridgeC1 = "§9"; bridgeC2 = "§6"; bridgeC3 = "§f";
+                            bridgeC1 = "§2"; bridgeC2 = "§6"; bridgeC3 = "§f";
                             bridgeColourFormat();
                             return 1;
                         })
                         .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("colour1", StringArgumentType.word())
                                 .suggests((context, builder) -> CommandSource.suggestMatching(VALID_COLORS, builder))
                                 .executes(context -> {
-                                    bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§9");
+                                    bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§2 ");
                                     bridgeC2 = bridgeC1;
                                     bridgeC3 = bridgeC1;
                                     bridgeColourFormat();
@@ -48,7 +48,7 @@ public final class BridgeColourCommand {
                                 .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("colour2", StringArgumentType.word())
                                         .suggests((context, builder) -> CommandSource.suggestMatching(VALID_COLORS, builder))
                                         .executes(context -> {
-                                            bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§9");
+                                            bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§2");
                                             bridgeC2 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour2"), "§6");
                                             bridgeC3 = bridgeC2;
                                             bridgeColourFormat();
@@ -57,7 +57,7 @@ public final class BridgeColourCommand {
                                         .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("colour3", StringArgumentType.word())
                                                 .suggests((context, builder) -> CommandSource.suggestMatching(VALID_COLORS, builder))
                                                 .executes(context -> {
-                                                    bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§9");
+                                                    bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§2");
                                                     bridgeC2 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour2"), "§6");
                                                     bridgeC3 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour3"), "§f");
                                                     bridgeColourFormat();

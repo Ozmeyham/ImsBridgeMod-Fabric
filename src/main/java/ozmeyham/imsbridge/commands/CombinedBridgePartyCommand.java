@@ -1,5 +1,6 @@
 package ozmeyham.imsbridge.commands;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -12,7 +13,6 @@ import net.minecraft.client.MinecraftClient;
 import static ozmeyham.imsbridge.IMSBridge.combinedBridgeEnabled;
 import static ozmeyham.imsbridge.ImsWebSocketClient.wsClient;
 import static ozmeyham.imsbridge.utils.TextUtils.printToChat;
-import static ozmeyham.imsbridge.utils.TextUtils.sanitizeMessage;
 
 public final class CombinedBridgePartyCommand {
 
@@ -30,7 +30,11 @@ public final class CombinedBridgePartyCommand {
                                             String reason = StringArgumentType.getString(ctx, "reason");
                                             String message = reason + ". Do !join " + MinecraftClient.getInstance().player.getName().getString() + " to join! (" + partyCap + " spots)";
                                             if (combinedBridgeEnabled && wsClient.isOpen() && wsClient != null) {
-                                                wsClient.send("{\"from\":\"mc\",\"msg\":\"" + sanitizeMessage(message) + "\",\"combinedbridge\":true}");
+                                                JsonObject payload = new JsonObject();
+                                                payload.addProperty("from","mc");
+                                                payload.addProperty("msg",message);
+                                                payload.addProperty("combinedbridge","true");
+                                                wsClient.send(payload.toString());
                                                 lastParty = System.currentTimeMillis();
                                             } else if (wsClient == null || wsClient.isClosed()) {
                                                 printToChat("§cYou are not connected to the bridge websocket server!");

@@ -23,7 +23,6 @@ import static ozmeyham.imsbridge.commands.CombinedBridgeColourCommand.*;
 import static ozmeyham.imsbridge.utils.BridgeKeyUtils.bridgeKey;
 import static ozmeyham.imsbridge.utils.BridgeKeyUtils.isValidBridgeKey;
 import static ozmeyham.imsbridge.utils.TextUtils.printToChat;
-import static ozmeyham.imsbridge.utils.TextUtils.quote;
 
 public class ImsWebSocketClient extends WebSocketClient {
 
@@ -62,7 +61,10 @@ public class ImsWebSocketClient extends WebSocketClient {
         // printToChat("§2Successfully connected to websocket.");
         // Send bridgeKey immediately after connecting
         if (bridgeKey != null) {
-            wsClient.send("{\"from\":\"mc\",\"key\":" + quote(bridgeKey) + "}");
+            JsonObject auth = new JsonObject();
+            auth.addProperty("from","mc");
+            auth.addProperty("key",bridgeKey);
+            wsClient.send(auth.toString());
         }
     }
 
