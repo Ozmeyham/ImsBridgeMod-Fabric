@@ -83,6 +83,9 @@ public class EventHandler {
         else if (combinedBridgeChatEnabled && !combinedBridgeEnabled) {
             printToChat("§cYou need to enable cbridge messages before using cbridge! §6§oDo /cbridge toggle");
             return false;
+        } else if (combinedBridgeChatEnabled && combinedBridgeEnabled && (wsClient == null || !wsClient.isOpen())) {
+            printToChat("§cYou are not connected to the bridge server!");
+            return false;
         }
         return true;
     }

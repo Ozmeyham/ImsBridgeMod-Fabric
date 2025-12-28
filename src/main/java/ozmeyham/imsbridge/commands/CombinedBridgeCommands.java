@@ -58,7 +58,7 @@ public class CombinedBridgeCommands {
                 .then(argument("message", StringArgumentType.greedyString())
                         .executes(ctx -> {
                             String message = StringArgumentType.getString(ctx, "message");
-                            if (combinedBridgeEnabled && wsClient.isOpen() && wsClient != null) {
+                            if (combinedBridgeEnabled && wsClient != null && wsClient.isOpen() ) {
                                 JsonObject payload = new JsonObject();
                                 payload.addProperty("from","mc");
                                 payload.addProperty("msg",message);

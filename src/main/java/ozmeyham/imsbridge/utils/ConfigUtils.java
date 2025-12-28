@@ -51,6 +51,9 @@ public class ConfigUtils {
             } catch (IOException e) {
                 LOGGER.error("Failed to load value from config.", e);
             }
+        } else {
+            String defaultValue = props.getProperty(CONFIG_KEY, DEFAULT_VALUE);
+            return defaultValue;
         }
         return null;
     }
