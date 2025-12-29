@@ -3,13 +3,14 @@
 	"id": "ims-bridge-fabric",
 	"version": "${version}",
 	"name": "IMS Bridge",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A bridge mod for IMS guilds that facilitates communication between Discord and the in-game guild chat.",
 	"authors": [
-		"LEAD Ozmeyham",
+		"Ozmeyham",
 		"AntiRelic",
 		"Malwry",
 		"N1K0LAAA",
-		"and more people, add your missing username to the branch."
+		"Nopo",
+		"Lemon1011"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
@@ -28,7 +29,7 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.21.5",
+		"minecraft": "~1.21.8",
 		"java": ">=21",
 		"fabric-api": "*"
 	},
