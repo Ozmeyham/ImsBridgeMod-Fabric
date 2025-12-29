@@ -65,7 +65,7 @@ public class CombinedBridgeCommands {
                                 payload.addProperty("combinedbridge","true");
                                 wsClient.send(payload.toString());
                             }
-                            else if (wsClient == null || wsClient.isClosed()){
+                            else if (wsClient == null || !wsClient.isOpen()){
                                 printToChat("§cYou are not connected to the bridge websocket server!");
                             } else {
                                 printToChat("§cYou need to enable combined bridge messages to use this command! §6§o/cbridge toggle");
