@@ -6,6 +6,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static ozmeyham.imsbridge.IMSBridge.combinedBridgeChatEnabled;
@@ -48,6 +49,22 @@ public class CombinedBridgeCommands {
                                 saveConfigValue("combinedBridgeEnabled", "true");
                                 printToChat("§aEnabled combined bridge messages!");
                             }
+                            return Command.SINGLE_SUCCESS;
+                        })
+                ));
+
+        dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("chat")
+                .then(argument("type", StringArgumentType.greedyString())
+                        .executes(ctx -> {
+                            String type = StringArgumentType.getString(ctx, "type");
+                            if (!type.equalsIgnoreCase("b")) {
+                                MinecraftClient.getInstance().player.networkHandler.sendChatMessage("/chat " + type);
+                                return Command.SINGLE_SUCCESS;
+                            }
+                                combinedBridgeEnabled = true;
+                                saveConfigValue("combinedBridgeEnabled", "true");
+                                printToChat("§aEnabled combined bridge messages!");
+
                             return Command.SINGLE_SUCCESS;
                         })
                 ));
