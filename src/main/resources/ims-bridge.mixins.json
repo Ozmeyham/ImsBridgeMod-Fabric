@@ -3,7 +3,7 @@
 	"package": "ozmeyham.imsbridge.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"MixinSkyhanniChatDisplay"
 	],
 	"injectors": {
 		"defaultRequire": 1
