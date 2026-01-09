@@ -61,9 +61,9 @@ public class CombinedBridgeCommands {
                                 MinecraftClient.getInstance().player.networkHandler.sendChatMessage("/chat " + type);
                                 return Command.SINGLE_SUCCESS;
                             }
-                                combinedBridgeEnabled = true;
-                                saveConfigValue("combinedBridgeEnabled", "true");
-                                printToChat("§aEnabled combined bridge messages!");
+                                combinedBridgeChatEnabled = true;
+                                saveConfigValue("combinedBridgeChatEnabled", "true");
+                                printToChat("§aEntered combined bridge chat!");
 
                             return Command.SINGLE_SUCCESS;
                         })
