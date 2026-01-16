@@ -1,6 +1,10 @@
 package ozmeyham.imsbridge;
 
+import com.mojang.serialization.JsonOps;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -70,7 +74,7 @@ public class ImsWebSocketClient extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        //printToChat(message);
+        System.out.println(message);
         if (getJsonValue(message, "response") != null) {
             handleResponse(message);
         } else if (getJsonValue(message, "from") != null) {
@@ -83,13 +87,15 @@ public class ImsWebSocketClient extends WebSocketClient {
             String guild = GUILD_MAP.get(getJsonValue(message, "guild"));
             String guildColour = GUILD_COLOUR_MAP.get(getJsonValue(message, "guild"));
 
-            if (message.contains("\"combinedbridge\":true")){
-                if (message.contains("\"from\":\"discord\"")) {
+            if ("true".equals(getJsonValue(message, "combinedbridge"))) {
+                if ("discord".equals(getJsonValue(message, "from"))) {
                     guild = "DISC";
                     guildColour = "§9";
                 }
                 cbridgeMessage(chatMsg, username, guild, guildColour);
-            } else if (message.contains("\"from\":\"discord\"")){
+            } else if ("show".equals(getJsonValue(message, "true"))) {
+                bridgeShowMessage(chatMsg, username, guild, guildColour, getJsonValue(message, "jsonStack"));
+            } else if ("discord".equals(getJsonValue(message, "from"))) {
                 bridgeMessage(chatMsg, username, guild);
             }
         }
@@ -146,6 +152,25 @@ public class ImsWebSocketClient extends WebSocketClient {
             CombinedBridgePartyCommand.partySpotsLeft -= 1;
             MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("party invite " + username);
         }
+    }
+
+    private void bridgeShowMessage(String chatMsg, String username, String guild, String guildColour, String jsonStack) {
+        MutableText formattedMsg = Text.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg);
+
+        if (jsonStack != null) {
+            var world = MinecraftClient.getInstance().world;
+            if (world == null) return;
+            var ops = world.getRegistryManager().getOps(JsonOps.COMPRESSED);
+            var stack = ItemStack.CODEC.parse(ops, new JsonPrimitive(jsonStack)).getOrThrow();
+            Text text = Text.of(stack.getName());
+            var comp = text.copy().setStyle(text.getStyle().withHoverEvent(new HoverEvent.ShowItem(stack)));
+            formattedMsg = Text.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §7is holding §8[").append(comp).append("§8]");
+        }
+
+
+        // Send formatted message in client chat
+        TextUtils.printToChat(formattedMsg, false);
+
     }
 
     public static String getJsonValue(String jsonString, String key) {

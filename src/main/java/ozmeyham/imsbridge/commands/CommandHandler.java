@@ -18,6 +18,7 @@ public class CommandHandler {
         bridgeKeyCommand(dispatcher);
         bridgeToggleCommand(dispatcher);
         bridgeColourCommand(dispatcher);
+        bridgeShowCommand(dispatcher);
         // cbridge commands
         combinedBridgeToggleCommand(dispatcher);
         combinedBridgeChatCommand(dispatcher);

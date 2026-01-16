@@ -16,6 +16,15 @@ public class TextUtils {
         );
     }
 
+    public static void printToChat(Text msg, boolean prefix) {
+        Text message;
+        if (prefix) message = Text.literal("§6IMS-Bridge Mod > §r").append(msg);
+        else message = msg;
+        MinecraftClient.getInstance().execute(() ->
+                MinecraftClient.getInstance().player.sendMessage(message, false)
+        );
+    }
+
     public static void printToChat(String msg) {
         printToChat(msg, true);
     }

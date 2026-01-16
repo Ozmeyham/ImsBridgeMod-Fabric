@@ -1,11 +1,15 @@
 package ozmeyham.imsbridge.commands;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemStack;
 
 import static ozmeyham.imsbridge.IMSBridge.*;
 import static ozmeyham.imsbridge.ImsWebSocketClient.connectWebSocket;
@@ -102,6 +106,41 @@ public final class BridgeCommands {
                     return Command.SINGLE_SUCCESS;
                 })
         );
+    }
+
+    public static void bridgeShowCommand(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("bridge")
+                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("show")
+                        .executes(ctx -> {
+                            var stack = MinecraftClient.getInstance().player.getMainHandStack();
+                            if (stack == null) {
+                                // do error
+                                return Command.SINGLE_SUCCESS;
+                            }
+                            var world = MinecraftClient.getInstance().world;
+                            if (world == null) return Command.SINGLE_SUCCESS;
+                            var ops = world.getRegistryManager().getOps(JsonOps.COMPRESSED);
+                            var jsonStack = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
+                            var message = "is holding [" + stack.getName().getString() + "]";
+
+                            if (combinedBridgeEnabled && wsClient != null && wsClient.isOpen() ) {
+                                JsonObject payload = new JsonObject();
+                                payload.addProperty("from","discord");
+                                payload.addProperty("msg", message);
+                                payload.add("jsonStack", jsonStack);
+                                payload.addProperty("show", "true");
+                                wsClient.send(payload.toString());
+                            }
+                            else if (wsClient == null || !wsClient.isOpen()){
+                                printToChat("§cYou are not connected to the bridge websocket server!");
+                            } else {
+                                printToChat("§cYou need to enable combined bridge messages to use this command! §6§o/cbridge toggle");
+                            }
+
+
+                            return Command.SINGLE_SUCCESS;
+                        })
+                ));
     }
 
 
