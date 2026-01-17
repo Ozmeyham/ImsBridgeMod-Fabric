@@ -19,6 +19,7 @@ public class CommandHandler {
         bridgeToggleCommand(dispatcher);
         bridgeColourCommand(dispatcher);
         bridgeShowCommand(dispatcher);
+        bridgeServerCommand(dispatcher);
         // cbridge commands
         combinedBridgeToggleCommand(dispatcher);
         combinedBridgeChatCommand(dispatcher);
@@ -28,6 +29,7 @@ public class CommandHandler {
         combinedBridgeMsgCommand2(dispatcher);
         combinedBridgeColourCommand(dispatcher);
         combinedBridgeHelpCommand(dispatcher);
+        combinedBridgeShowCommand(dispatcher);
         bridgePartyCommand(dispatcher);
     }
 }

@@ -10,10 +10,11 @@ import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
+import ozmeyham.imsbridge.ImsWebSocketClient;
+import ozmeyham.imsbridge.utils.TextUtils;
 
 import static ozmeyham.imsbridge.IMSBridge.*;
-import static ozmeyham.imsbridge.ImsWebSocketClient.connectWebSocket;
-import static ozmeyham.imsbridge.ImsWebSocketClient.wsClient;
+import static ozmeyham.imsbridge.ImsWebSocketClient.*;
 import static ozmeyham.imsbridge.utils.BridgeKeyUtils.bridgeKey;
 import static ozmeyham.imsbridge.utils.BridgeKeyUtils.isValidBridgeKey;
 import static ozmeyham.imsbridge.utils.ConfigUtils.loadConfig;
@@ -47,7 +48,8 @@ public final class BridgeCommands {
                                 .executes(ctx -> {
                                     String key = StringArgumentType.getString(ctx, "key");
                                     bridgeKey = key;
-                                    if (isValidBridgeKey() && (wsClient == null || !wsClient.isOpen())) {
+                                    if (isValidBridgeKey()) {
+                                        disconnectWebSocket();
                                         saveConfigValue("bridgeKey", bridgeKey);
                                         loadConfig();
                                         LOGGER.info("Bridge key set to " + key);
@@ -112,36 +114,68 @@ public final class BridgeCommands {
         dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("bridge")
                 .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("show")
                         .executes(ctx -> {
-                            var stack = MinecraftClient.getInstance().player.getMainHandStack();
-                            if (stack == null) {
-                                // do error
-                                return Command.SINGLE_SUCCESS;
-                            }
-                            var world = MinecraftClient.getInstance().world;
-                            if (world == null) return Command.SINGLE_SUCCESS;
-                            var ops = world.getRegistryManager().getOps(JsonOps.COMPRESSED);
-                            var jsonStack = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
-                            var message = "is holding [" + stack.getName().getString() + "]";
+                            try {
+                                var stack = MinecraftClient.getInstance().player.getMainHandStack();
+                                if (stack == null || stack.isEmpty()) {
+                                    TextUtils.printToChat("You must be holding an item");
+                                    return Command.SINGLE_SUCCESS;
+                                }
+                                var world = MinecraftClient.getInstance().world;
+                                if (world == null) {
+                                    TextUtils.printToChat("world null");
+                                    return Command.SINGLE_SUCCESS;
+                                }
+                                var ops = world.getRegistryManager().getOps(JsonOps.COMPRESSED);
+                                var jsonStack = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
+                                var amountStr = "";
+                                if (stack.getCount() > 1) amountStr = " x" + stack.getCount();
+                                var message = "is holding [" + stack.getName().getString() + amountStr + "]";
 
-                            if (combinedBridgeEnabled && wsClient != null && wsClient.isOpen() ) {
-                                JsonObject payload = new JsonObject();
-                                payload.addProperty("from","discord");
-                                payload.addProperty("msg", message);
-                                payload.add("jsonStack", jsonStack);
-                                payload.addProperty("show", "true");
-                                wsClient.send(payload.toString());
+                                if (wsClient != null && wsClient.isOpen()) {
+                                    JsonObject payload = new JsonObject();
+                                    payload.addProperty("from", "show");
+                                    payload.addProperty("msg", message);
+                                    payload.add("jsonStack", jsonStack);
+                                    payload.addProperty("show", "true");
+                                    wsClient.send(payload.toString());
+                                } else if (wsClient == null || !wsClient.isOpen()) {
+                                    printToChat("§cYou are not connected to the bridge websocket server!");
+                                } else {
+                                    printToChat("§csome error");
+                                }
+                            } catch (Exception ignored) {
+                                printToChat("There was an error processing your item, please report this");
                             }
-                            else if (wsClient == null || !wsClient.isOpen()){
-                                printToChat("§cYou are not connected to the bridge websocket server!");
-                            } else {
-                                printToChat("§cYou need to enable combined bridge messages to use this command! §6§o/cbridge toggle");
-                            }
-
 
                             return Command.SINGLE_SUCCESS;
                         })
                 ));
     }
+
+    public static void bridgeServerCommand(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("bridge")
+                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("devServer")
+                        .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("url", StringArgumentType.greedyString())
+                                .executes(ctx -> {
+                                    disconnectWebSocket();
+                                    String url = StringArgumentType.getString(ctx, "url");
+                                    ImsWebSocketClient.wsUrl = url;
+                                    connectWebSocket();
+                                    TextUtils.printToChat("set server url to " + url);
+
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                ).executes(ctx -> {
+                    disconnectWebSocket();
+                    ImsWebSocketClient.wsUrl = "wss://ims-bridge.com";
+                    connectWebSocket();
+                    return Command.SINGLE_SUCCESS;
+                })
+        );
+    }
+
+
 
 
 }
