@@ -5,8 +5,11 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemStack;
+import ozmeyham.imsbridge.utils.TextUtils;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static ozmeyham.imsbridge.IMSBridge.combinedBridgeChatEnabled;
@@ -163,5 +166,48 @@ public class CombinedBridgeCommands {
                     return Command.SINGLE_SUCCESS;
                 })
         );
+    }
+
+    public static void combinedBridgeShowCommand(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal("cbridge")
+                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("show")
+                        .executes(ctx -> {
+                            try {
+                                var stack = MinecraftClient.getInstance().player.getMainHandStack();
+                                if (stack == null || stack.isEmpty()) {
+                                    TextUtils.printToChat("You must be holding an item");
+                                    return Command.SINGLE_SUCCESS;
+                                }
+                                var world = MinecraftClient.getInstance().world;
+                                if (world == null) {
+                                    TextUtils.printToChat("world null");
+                                    return Command.SINGLE_SUCCESS;
+                                }
+                                var ops = world.getRegistryManager().getOps(JsonOps.COMPRESSED);
+                                var jsonStack = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
+                                var amountStr = "";
+                                if (stack.getCount() > 1) amountStr = " x" + stack.getCount();
+                                var message = "is holding [" + stack.getName().getString() + amountStr + "]";
+
+                                if (combinedBridgeEnabled && wsClient != null && wsClient.isOpen()) {
+                                    JsonObject payload = new JsonObject();
+                                    payload.addProperty("from", "show");
+                                    payload.addProperty("msg", message);
+                                    payload.add("jsonStack", jsonStack);
+                                    payload.addProperty("show", "true");
+                                    payload.addProperty("combinedbridge", "true");
+                                    wsClient.send(payload.toString());
+                                } else if (wsClient == null || !wsClient.isOpen()) {
+                                    printToChat("§cYou are not connected to the bridge websocket server!");
+                                } else {
+                                    printToChat("§csome error");
+                                }
+
+                            } catch (Exception ignored) {
+                                printToChat("There was an error processing your item, please report this");
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
+                ));
     }
 }
