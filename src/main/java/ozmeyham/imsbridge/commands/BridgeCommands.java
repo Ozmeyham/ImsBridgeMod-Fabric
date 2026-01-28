@@ -125,7 +125,7 @@ public final class BridgeCommands {
                                     TextUtils.printToChat("world null");
                                     return Command.SINGLE_SUCCESS;
                                 }
-                                var ops = world.getRegistryManager().getOps(JsonOps.COMPRESSED);
+                                var ops = world.getRegistryManager().getOps(JsonOps.INSTANCE);
                                 var jsonStack = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
                                 var amountStr = "";
                                 if (stack.getCount() > 1) amountStr = " x" + stack.getCount();

@@ -163,13 +163,19 @@ public class ImsWebSocketClient extends WebSocketClient {
     }
 
     private void bridgeShowMessage(String chatMsg, String username, String guild, String guildColour, JsonElement jsonStack, boolean isCombinedBridge) {
-        MutableText formattedMsg = Text.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §9[DISC]§f: " + bridgeC3 + chatMsg);
+        MutableText formattedMsg;
+
+        if (isCombinedBridge) {
+            formattedMsg = Text.literal(cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg);
+        } else {
+            formattedMsg = Text.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + guildColour + " [" + guild + "]§f: " + bridgeC3 + chatMsg);
+        }
 
         if (jsonStack != null) {
             try {
                 var world = MinecraftClient.getInstance().world;
                 if (world == null) return;
-                var ops = world.getRegistryManager().getOps(JsonOps.COMPRESSED);
+                var ops = world.getRegistryManager().getOps(JsonOps.INSTANCE);
                 var stack = ItemStack.CODEC.parse(ops, jsonStack).getOrThrow();
                 Text text = Text.of(stack.getName());
                 var comp = text.copy().setStyle(text.getStyle().withHoverEvent(new HoverEvent.ShowItem(stack)));
@@ -180,8 +186,8 @@ public class ImsWebSocketClient extends WebSocketClient {
                 } else {
                     formattedMsg = Text.literal(cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "] §7is holding §8[").append(comp).append(amountStr + "§8]");
                 }
-            } catch (Exception ignored) {
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
