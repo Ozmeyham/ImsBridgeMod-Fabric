@@ -32,6 +32,7 @@ public final class BridgeCommands {
                                    §9/bridge toggle: §7Enables/disables bridge message rendering.
                                    §9/bridge colour <colour1> <colour2> <colour3>: §7Sets the colour formatting of rendered bridge messages.
                                    §9/bridge colour: §7Sets the colour formatting back to default.
+                                   §9/bridge show: §7Sends your held item to guild bridge, similar to how /show works.
                                    §9/bridge online: §6(alias /bl) §7Shows a list of online guildmates using this mod.
                                    """
                             );

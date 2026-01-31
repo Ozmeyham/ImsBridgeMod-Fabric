@@ -38,6 +38,8 @@ If you very recently joined an IMS guild and receive an error when attempting to
 
 ```/cbridge colour``` and ```/bridge colour``` - Resets the colour formatting back to default.
 
+```/cbridge show``` and ```/bridge show``` - Sends your held item to cbridge/guild bridge respectively, similar to how ```/show``` works.
+
 ```/cbridge party <playerCap> <reason>``` - Sends a message in cbridge to say you have an open party, and lets other people join by typing ```!join <leaderIGN>```
 
 ```/bridge key <key>``` - Allows the user to input their UUID bridge key for authentication to use bridge.

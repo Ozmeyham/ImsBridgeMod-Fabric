@@ -29,7 +29,8 @@ public class CombinedBridgeCommands {
                                     §b/cbridge colour <colour1> <colour2> <colour3>: §7Sets the colour formatting of rendered cbridge messages.
                                     §b/cbridge colour: §7Sets the colour formatting back to default.
                                     §b/cbridge chat: §6(alias /cbc or /bc) §7Enter/exit cbridge chat (like how \"/chat guild\" works). 
-                                    §b/cbridge party [playerCap] [reason]: §7Sends a message in cbridge that you have an open party, and lets people join with !join ign. 
+                                    §b/cbridge party [playerCap] [reason]: §7Sends a message in cbridge that you have an open party, and lets people join with !join ign.
+                                    §b/cbridge show: §7Sends your held item to cbridge, similar to how /show works.
                                     §b/cbc <msg>: §6(or /bc <msg>) §7Sends msg to cbridge.
                                     """
                             );
