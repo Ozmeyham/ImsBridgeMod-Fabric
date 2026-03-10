@@ -25,7 +25,7 @@ public class EventHandler {
     public static void eventListener() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> registerCommands(dispatcher));
         ClientSendMessageEvents.ALLOW_CHAT.register(EventHandler::allowCBridgeMsg);
-        ClientReceiveMessageEvents.GAME.register(EventHandler::handleClientMessages);
+        ClientReceiveMessageEvents.ALLOW_GAME.register(EventHandler::handleClientMessages);
         ClientReceiveMessageEvents.MODIFY_GAME.register(EventHandler::clickableJoinCommand);
         ClientPlayConnectionEvents.JOIN.register(EventHandler::onWorldJoin);
         ClientPlayConnectionEvents.DISCONNECT.register(EventHandler::onWorldLeave); //wip for disconnecting players when they leave a server/world
@@ -91,7 +91,7 @@ public class EventHandler {
     }
 
     // Listen for outgoing guild messages and channel changes
-    private static void handleClientMessages(Text message, boolean overlay) {
+    private static boolean handleClientMessages(Text message, boolean overlay) {
         String content = message.getString();
         if (content.contains("§2Guild >")) {
             // Send to websocket
@@ -136,6 +136,7 @@ public class EventHandler {
                 printToChat("§aEnabled bridge messages!");
             }
         }
+        return true;
     }
 
     private static Text clickableJoinCommand(Text message, boolean overlay) {
