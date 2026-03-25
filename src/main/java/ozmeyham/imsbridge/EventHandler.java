@@ -6,9 +6,12 @@ import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.text.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import ozmeyham.imsbridge.commands.CombinedBridgeColourCommand;
 
 import static ozmeyham.imsbridge.IMSBridge.*;
@@ -32,7 +35,7 @@ public class EventHandler {
     }
 
     // Checks stuff when you join a world
-    private static void onWorldJoin(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
+    private static void onWorldJoin(ClientPacketListener handler, PacketSender sender, Minecraft client) {
         // ClientConnection connection = handler.getConnection();
         // String address = connection.getAddress().toString().toLowerCase();
         // onHypixel = address.contains("hypixel.net");
@@ -63,7 +66,7 @@ public class EventHandler {
         }).start();
     }
 
-    private static void onWorldLeave(ClientPlayNetworkHandler handler, MinecraftClient client) {
+    private static void onWorldLeave(ClientPacketListener handler, Minecraft client) {
         clientOnline = false;
         disconnectWebSocket();
     }
@@ -91,7 +94,7 @@ public class EventHandler {
     }
 
     // Listen for outgoing guild messages and channel changes
-    private static boolean handleClientMessages(Text message, boolean overlay) {
+    private static boolean handleClientMessages(Component message, boolean overlay) {
         String content = message.getString();
         if (content.contains("§2Guild >")) {
             // Send to websocket
@@ -139,12 +142,12 @@ public class EventHandler {
         return true;
     }
 
-    private static Text clickableJoinCommand(Text message, boolean overlay) {
+    private static Component clickableJoinCommand(Component message, boolean overlay) {
         if (overlay) return message;
         String string = message.getString();
         if (!string.startsWith(CombinedBridgeColourCommand.cbridgeC1 + "CB > ")) return message;
         if (!string.contains("Do !join ") || !string.contains(" to join!")) return message;
-        MutableText newMessage = (MutableText) message;
+        MutableComponent newMessage = (MutableComponent) message;
         String ignToJoin;
         try {
             ignToJoin = string.split("!join ")[1].split(" ")[0];
@@ -152,7 +155,7 @@ public class EventHandler {
             return message;
         }
         newMessage = newMessage.setStyle(newMessage.getStyle().withClickEvent(new ClickEvent.RunCommand("/cbc !join " + ignToJoin)));
-        newMessage = newMessage.setStyle(newMessage.getStyle().withHoverEvent(new HoverEvent.ShowText(Text.of("§eRuns /cbc !join " + ignToJoin))));
+        newMessage = newMessage.setStyle(newMessage.getStyle().withHoverEvent(new HoverEvent.ShowText(Component.nullToEmpty("§eRuns /cbc !join " + ignToJoin))));
         newMessage = newMessage.append(" §eClick here to join the party");
         return newMessage;
     }
