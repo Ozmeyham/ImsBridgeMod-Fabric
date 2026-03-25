@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import ozmeyham.imsbridge.utils.TextUtils;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
 import static ozmeyham.imsbridge.IMSBridge.combinedBridgeChatEnabled;
 import static ozmeyham.imsbridge.IMSBridge.combinedBridgeEnabled;
 import static ozmeyham.imsbridge.ImsWebSocketClient.wsClient;

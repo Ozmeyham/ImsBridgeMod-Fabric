@@ -11,7 +11,7 @@ public class TextUtils {
         if (prefix) message = Component.literal("§6IMS-Bridge Mod > §r" + msg);
         else message = Component.literal(msg);
         Minecraft.getInstance().execute(() ->
-                Minecraft.getInstance().player.displayClientMessage(message, false)
+                Minecraft.getInstance().player.sendSystemMessage(message)
         );
     }
 
@@ -20,7 +20,7 @@ public class TextUtils {
         if (prefix) message = Component.literal("§6IMS-Bridge Mod > §r").append(msg);
         else message = msg;
         Minecraft.getInstance().execute(() ->
-                Minecraft.getInstance().player.displayClientMessage(message, false)
+                Minecraft.getInstance().player.sendSystemMessage(message)
         );
     }
 

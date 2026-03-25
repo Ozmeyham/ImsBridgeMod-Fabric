@@ -1,6 +1,7 @@
 package ozmeyham.imsbridge;
 
 import com.mojang.serialization.JsonOps;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -180,7 +181,7 @@ public class ImsWebSocketClient extends WebSocketClient {
                 var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
                 var stack = ItemStack.CODEC.parse(ops, jsonStack).getOrThrow();
                 Component text = Component.translationArg(stack.getHoverName());
-                var comp = text.copy().setStyle(text.getStyle().withHoverEvent(new HoverEvent.ShowItem(stack)));
+                var comp = text.copy().setStyle(text.getStyle().withHoverEvent(new HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(stack))));
                 var amountStr = "";
                 if (stack.getCount() > 1) amountStr = " §7x" + stack.getCount();
                 if (!isCombinedBridge) {

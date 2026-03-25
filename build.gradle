@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.13-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
 	id 'maven-publish'
 	id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
@@ -23,13 +23,13 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+//	mappings loom.officialMojangMappings()
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	shade 'org.java-websocket:Java-WebSocket:1.5.4'
 	shade 'com.fasterxml.jackson.core:jackson-databind:2.21.1'
 	shade 'org.apache.httpcomponents:httpclient:4.5.14'
-	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
+	runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 }
 
 tasks.withType(JavaCompile).configureEach {
