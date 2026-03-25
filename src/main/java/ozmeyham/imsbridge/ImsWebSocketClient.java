@@ -164,6 +164,8 @@ public class ImsWebSocketClient extends WebSocketClient {
 
     private void bridgeShowMessage(String chatMsg, String username, String guild, String guildColour, JsonElement jsonStack, boolean isCombinedBridge) {
         MutableText formattedMsg;
+        if (isCombinedBridge && !combinedBridgeEnabled) return;
+        else if (!bridgeEnabled) return;
 
         if (isCombinedBridge) {
             formattedMsg = Text.literal(cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg);
