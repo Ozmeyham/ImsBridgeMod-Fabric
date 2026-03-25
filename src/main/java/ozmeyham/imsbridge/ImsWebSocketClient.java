@@ -1,11 +1,7 @@
 package ozmeyham.imsbridge;
 
 import com.mojang.serialization.JsonOps;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -13,6 +9,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Objects;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
 import com.google.gson.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -155,38 +156,38 @@ public class ImsWebSocketClient extends WebSocketClient {
         // Send formatted message in client chat
         TextUtils.printToChat(formattedMsg, false);
         if (CombinedBridgePartyCommand.partySpotsLeft <= 0 || System.currentTimeMillis() > CombinedBridgePartyCommand.lastParty + 300000) return;
-        String joinCommand = "!join " + MinecraftClient.getInstance().player.getName().getString();
+        String joinCommand = "!join " + Minecraft.getInstance().player.getName().getString();
         if (chatMsg.equalsIgnoreCase(joinCommand)) {
             CombinedBridgePartyCommand.partySpotsLeft -= 1;
-            MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("party invite " + username);
+            Minecraft.getInstance().getConnection().sendCommand("party invite " + username);
         }
     }
 
     private void bridgeShowMessage(String chatMsg, String username, String guild, String guildColour, JsonElement jsonStack, boolean isCombinedBridge) {
-        MutableText formattedMsg;
+        MutableComponent formattedMsg;
         if (isCombinedBridge && !combinedBridgeEnabled) return;
         else if (!bridgeEnabled) return;
 
         if (isCombinedBridge) {
-            formattedMsg = Text.literal(cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg);
+            formattedMsg = Component.literal(cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "]§f: " + cbridgeC3 + chatMsg);
         } else {
-            formattedMsg = Text.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + guildColour + " [" + guild + "]§f: " + bridgeC3 + chatMsg);
+            formattedMsg = Component.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + guildColour + " [" + guild + "]§f: " + bridgeC3 + chatMsg);
         }
 
         if (jsonStack != null) {
             try {
-                var world = MinecraftClient.getInstance().world;
+                var world = Minecraft.getInstance().level;
                 if (world == null) return;
-                var ops = world.getRegistryManager().getOps(JsonOps.INSTANCE);
+                var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
                 var stack = ItemStack.CODEC.parse(ops, jsonStack).getOrThrow();
-                Text text = Text.of(stack.getName());
-                var comp = text.copy().setStyle(text.getStyle().withHoverEvent(new HoverEvent.ShowItem(stack)));
+                Component text = Component.translationArg(stack.getHoverName());
+                var comp = text.copy().setStyle(text.getStyle().withHoverEvent(new HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(stack))));
                 var amountStr = "";
                 if (stack.getCount() > 1) amountStr = " §7x" + stack.getCount();
                 if (!isCombinedBridge) {
-                    formattedMsg = Text.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §7is holding §8[").append(comp).append(amountStr + "§8]");
+                    formattedMsg = Component.literal(bridgeC1 + "Gui" + bridgeC1 + "ld > " + bridgeC2 + username + " §7is holding §8[").append(comp).append(amountStr + "§8]");
                 } else {
-                    formattedMsg = Text.literal(cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "] §7is holding §8[").append(comp).append(amountStr + "§8]");
+                    formattedMsg = Component.literal(cbridgeC1 + "CB > " + cbridgeC2 + username + guildColour + " [" + guild + "] §7is holding §8[").append(comp).append(amountStr + "§8]");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

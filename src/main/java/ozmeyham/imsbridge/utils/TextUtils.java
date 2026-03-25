@@ -1,27 +1,26 @@
 package ozmeyham.imsbridge.utils;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
-
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 public class TextUtils {
     // Simple in-game chat print because the command is so long for some reason
     public static void printToChat(String msg, boolean prefix) {
-        Text message;
-        if (prefix) message = Text.literal("§6IMS-Bridge Mod > §r" + msg);
-        else message = Text.literal(msg);
-        MinecraftClient.getInstance().execute(() ->
-                MinecraftClient.getInstance().player.sendMessage(message, false)
+        Component message;
+        if (prefix) message = Component.literal("§6IMS-Bridge Mod > §r" + msg);
+        else message = Component.literal(msg);
+        Minecraft.getInstance().execute(() ->
+                Minecraft.getInstance().player.sendSystemMessage(message)
         );
     }
 
-    public static void printToChat(Text msg, boolean prefix) {
-        Text message;
-        if (prefix) message = Text.literal("§6IMS-Bridge Mod > §r").append(msg);
+    public static void printToChat(Component msg, boolean prefix) {
+        Component message;
+        if (prefix) message = Component.literal("§6IMS-Bridge Mod > §r").append(msg);
         else message = msg;
-        MinecraftClient.getInstance().execute(() ->
-                MinecraftClient.getInstance().player.sendMessage(message, false)
+        Minecraft.getInstance().execute(() ->
+                Minecraft.getInstance().player.sendSystemMessage(message)
         );
     }
 

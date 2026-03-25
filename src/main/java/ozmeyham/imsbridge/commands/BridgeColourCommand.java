@@ -5,8 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.command.CommandSource;
-
+import net.minecraft.commands.SharedSuggestionProvider;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ public final class BridgeColourCommand {
                             return 1;
                         })
                         .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("colour1", StringArgumentType.word())
-                                .suggests((context, builder) -> CommandSource.suggestMatching(VALID_COLORS, builder))
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(VALID_COLORS, builder))
                                 .executes(context -> {
                                     bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§2 ");
                                     bridgeC2 = bridgeC1;
@@ -46,7 +45,7 @@ public final class BridgeColourCommand {
                                     return 1;
                                 })
                                 .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("colour2", StringArgumentType.word())
-                                        .suggests((context, builder) -> CommandSource.suggestMatching(VALID_COLORS, builder))
+                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(VALID_COLORS, builder))
                                         .executes(context -> {
                                             bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§2");
                                             bridgeC2 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour2"), "§6");
@@ -55,7 +54,7 @@ public final class BridgeColourCommand {
                                             return 1;
                                         })
                                         .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("colour3", StringArgumentType.word())
-                                                .suggests((context, builder) -> CommandSource.suggestMatching(VALID_COLORS, builder))
+                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(VALID_COLORS, builder))
                                                 .executes(context -> {
                                                     bridgeC1 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour1"), "§2");
                                                     bridgeC2 = COLOR_CODE_MAP.getOrDefault(StringArgumentType.getString(context, "colour2"), "§6");
