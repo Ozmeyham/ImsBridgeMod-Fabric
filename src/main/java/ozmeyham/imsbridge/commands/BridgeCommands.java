@@ -8,8 +8,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.ItemStack;
 import ozmeyham.imsbridge.ImsWebSocketClient;
 import ozmeyham.imsbridge.utils.TextUtils;
 
@@ -116,21 +116,21 @@ public final class BridgeCommands {
                 .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("show")
                         .executes(ctx -> {
                             try {
-                                var stack = MinecraftClient.getInstance().player.getMainHandStack();
+                                var stack = Minecraft.getInstance().player.getMainHandItem();
                                 if (stack == null || stack.isEmpty()) {
                                     TextUtils.printToChat("You must be holding an item");
                                     return Command.SINGLE_SUCCESS;
                                 }
-                                var world = MinecraftClient.getInstance().world;
+                                var world = Minecraft.getInstance().level;
                                 if (world == null) {
                                     TextUtils.printToChat("world null");
                                     return Command.SINGLE_SUCCESS;
                                 }
-                                var ops = world.getRegistryManager().getOps(JsonOps.INSTANCE);
+                                var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
                                 var jsonStack = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
                                 var amountStr = "";
                                 if (stack.getCount() > 1) amountStr = " x" + stack.getCount();
-                                var message = "is holding [" + stack.getName().getString() + amountStr + "]";
+                                var message = "is holding [" + stack.getHoverName().getString() + amountStr + "]";
 
                                 if (wsClient != null && wsClient.isOpen()) {
                                     JsonObject payload = new JsonObject();

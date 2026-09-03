@@ -8,7 +8,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import static ozmeyham.imsbridge.IMSBridge.combinedBridgeEnabled;
 import static ozmeyham.imsbridge.ImsWebSocketClient.wsClient;
@@ -28,7 +28,7 @@ public final class CombinedBridgePartyCommand {
                                             int partyCap = IntegerArgumentType.getInteger(ctx, "playerCap");
                                             partySpotsLeft = partyCap;
                                             String reason = StringArgumentType.getString(ctx, "reason");
-                                            String message = reason + ". Do !join " + MinecraftClient.getInstance().player.getName().getString() + " to join! (" + partyCap + " spots)";
+                                            String message = reason + ". Do !join " + Minecraft.getInstance().player.getName().getString() + " to join! (" + partyCap + " spots)";
                                             if (combinedBridgeEnabled && wsClient.isOpen() && wsClient != null) {
                                                 JsonObject payload = new JsonObject();
                                                 payload.addProperty("from","mc");
