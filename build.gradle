@@ -25,7 +25,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 //	mappings loom.officialMojangMappings()
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	shade 'org.java-websocket:Java-WebSocket:1.5.4'
 	shade 'com.fasterxml.jackson.core:jackson-databind:2.21.1'
 	shade 'org.apache.httpcomponents:httpclient:4.5.14'
